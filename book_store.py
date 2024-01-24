@@ -1,13 +1,7 @@
 import mysql.connector
 class BookStore:
     
-    cursor = 0
-    mydb = 0
     database = "book_store"
-
-    user = "root"
-    password = "EKDXc5aP"
-    host = "localhost"
     
     def __init__(self) -> None:
     
@@ -31,10 +25,26 @@ class BookStore:
         self.cursor.execute(f"USE {self.database}") 
 
 
-    def get_subjects(self) -> tuple:
-        q = "(SELECT subject FROM books GROUP BY subject)"
+    # Get all titles by current subject
+    def get_titles_by_subject(self, str_subject) -> list:
+        q = "(select title, author, price, isbn, price from books where subject = %s)"
+        self.cursor.execute(q, (str_subject,))
+        lst = self.cursor.fetchall()
+        return lst
+       
+    # Get all subjects available
+    def get_subjects(self):
+        q = "(SELECT subject FROM books GROUP BY subject ORDER BY subject)"
         self.cursor.execute(q)
-        return [subject for subject in self.cursor.fetchall()] 
+        return [x for x in self.cursor.fetchall()]
+
+    # Add item to cart
+    def add_to_cart(self, data):
+        q = "(insert into cart(userid, isbn, qty) values(%s, %s, %s))"
+        self.cursor.execute(q, data)
+        self.mydb.commit()
+    
+
 
 
     def create_member(self, member_data):
