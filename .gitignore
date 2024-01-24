@@ -1,5 +1,7 @@
 # Venv
 
 myvenv/
+BookStore/
 __pycache__/
+
 config
