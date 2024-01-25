@@ -269,10 +269,16 @@ def main():
             choice = get_input()
             match (choice):
                 case "1":
-                    # Login user 
-                   member_login = get_member_login()
                    
+                   # Login user 
+                   member_login = get_member_login()
                    user_details = book_store.member_login(member_login)
+
+                   while(user_details is None): 
+                       print("Failed to login, try again")
+                       member_login = get_member_login()
+                       user_details = book_store.member_login(member_login)
+
 
                    # Login the user if the authentication was successful
                    if user_details[0] == member_login[1]:
