@@ -1,3 +1,6 @@
+############################################
+# BookStore, author an224qi@student.lnu.se #
+############################################
 from os import _exit
 from typing import Match
 from datetime import timedelta, date
@@ -6,11 +9,12 @@ from book_store import BookStore
 
 # Instantiate new BookStore
 book_store = BookStore()
-user_logged_in = True
-user_id = 1 
+user_logged_in = False
+user_id = 0 
 
 # Get the subjects
 subjects = book_store.get_subjects()
+
 
 # Method for printing the subjects on the screen with options
 def print_subjects(subjects):
@@ -44,14 +48,17 @@ def print_main_menu() -> None:
     print("3. Check out")
     print("4. Logout")
 
+
 def print_search_menu():
     print("\n")
     print("1. Author search") 
     print("2. Title search") 
     print("3. Go back to member menu")
  
+
 def get_input(text = "Enter your choice: ") -> str:
     return str(input(text))
+
 
 def get_member_login():
     member_login = []
@@ -72,7 +79,15 @@ def collect_member_data():
     member_data.append(input("Enter email address: "))
     member_data.append(input("Password: "))
 
+    try:
+        # Try and cast zip to int to check if it is an int
+        x = int(member_data[4])
+    except ValueError:
+        print("Invalid zip, try again.")
+        return None
+
     return member_data
+
 
 def add_to_cart():
 
@@ -89,6 +104,7 @@ def add_to_cart():
         print(f"\n{isbn} was successfully added to cart\n")
     else:
         print("\nSomething went horrible wrong, please check your input.")
+
 
 def print_receipt(order_id, cart_contents, member_details):
     total_sum = 0
@@ -110,8 +126,9 @@ def print_receipt(order_id, cart_contents, member_details):
         total_sum += (row[3] * row[2])
     print("-------------------------------------------------------------------------------------------------------------------")
     print(f"Total: ${total_sum}")
-    print(f"Estimated delivery date: {date.today() + timedelta(days=3)}" )
+    print(f"Estimated delivery date: {date.today() + timedelta(days=7)}" )
     print("-------------------------------------------------------------------------------------------------------------------") 
+
 
 def print_title(title):
     print(f"Title:\t {title[0]}")
@@ -121,6 +138,7 @@ def print_title(title):
     print(f"Subject\t {title[4]}")
     print("\n")
 
+ 
 def main():
 
     global user_logged_in, user_id
@@ -190,7 +208,7 @@ def main():
                         choice = get_input("Type in your option: ")
                         while(choice not in allowed):
                             print_search_menu()
-                            choice = get_input("EPIC FAIL, Type in your option[1,2,3]: ")   
+                            choice = get_input("Invalid option, enter your option[1,2,3]: ")   
 
                         match(choice):
                             case "1":
@@ -207,7 +225,7 @@ def main():
                                     if(i % 3 == 0):
                                         choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")
                                         while(choice not in allowed):
-                                            print(f"{choice} is not a valid option!! Please check brain-eyes relationship" )
+                                            print(f"{choice} is not a valid option!!" )
                                             choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")    
 
                                         # Get input choice for the book(s)
@@ -274,7 +292,22 @@ def main():
                        # Clear cart
                        book_store.clear_cart(user_id)
 
-                    # Else just continue the program
+                       allowed = ["4", "5"]
+                       print("\n")
+                       print("4. Logout")
+                       print("5. Quit")
+                       choice = get_input("Your choice: ")
+
+                       while(choice not in allowed):
+                           choice = get_input("Invalid choice, make choice: ") 
+
+                       match(choice):
+                            case "4":
+                                user_logged_in = False
+                                user_id = 0
+                                pass
+                            case "5":
+                                exit()
 
                 case "4":
                     user_logged_in = False
@@ -297,7 +330,6 @@ def main():
                        member_login = get_member_login()
                        user_details = book_store.member_login(member_login)
 
-
                    # Login the user if the authentication was successful
                    if user_details[0] == member_login[1]:
                        print("Logged in!")
@@ -311,14 +343,13 @@ def main():
                     # Collect member data
                     member_data = collect_member_data()
 
-                    # Create the member 
-                    book_store.create_member(member_data) 
+                    if(member_data is not None):
+                        # Create the member 
+                        book_store.create_member(member_data) 
+                        print("Member created successfully!")
                           
                 case "q":
                     wanna_quit = True
-
-        
-
 
 if __name__ == "__main__":
     main()
