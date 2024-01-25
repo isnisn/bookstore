@@ -1,12 +1,13 @@
 from os import _exit
 from typing import Match
+from datetime import timedelta, date
 import mysql.connector
 from book_store import BookStore
 
 # Instantiate new BookStore
 book_store = BookStore()
-user_logged_in = False
-user_id = 0 
+user_logged_in = True
+user_id = 1 
 
 # Get the subjects
 subjects = book_store.get_subjects()
@@ -21,7 +22,7 @@ def print_subjects(subjects):
 
 
 def print_login_menu() -> None:
-    print("\n" * 5)
+    print("\n" * 3)
     print("******************************************") 
     print("***  Welcome to the online Book Store  ***")
     print("***          Please log in             ***") 
@@ -33,7 +34,7 @@ def print_login_menu() -> None:
 
 
 def print_main_menu() -> None:
-    print("\n" * 5)
+    print("\n" * 3)
     print("******************************************") 
     print("***  Welcome to the online Book Store  ***")
     print("******************************************") 
@@ -44,6 +45,7 @@ def print_main_menu() -> None:
     print("4. Logout")
 
 def print_search_menu():
+    print("\n")
     print("1. Author search") 
     print("2. Title search") 
     print("3. Go back to member menu")
@@ -76,12 +78,17 @@ def add_to_cart():
 
     isbn = get_input("Enter ISBN: ")
     qty = get_input("Enter qty: ")
-    data = (user_id, isbn, int(qty))
+
+    try:
+        data = (user_id, isbn, int(qty))
+    except ValueError:
+        print("Invalid qty, should be a number!")
+        return
 
     if book_store.add_to_cart(data):
         print(f"\n{isbn} was successfully added to cart\n")
     else:
-        print("\nSomething went horrible wrong, please check your input")
+        print("\nSomething went horrible wrong, please check your input.")
 
 def print_receipt(order_id, cart_contents, member_details):
     total_sum = 0
@@ -103,7 +110,16 @@ def print_receipt(order_id, cart_contents, member_details):
         total_sum += (row[3] * row[2])
     print("-------------------------------------------------------------------------------------------------------------------")
     print(f"Total: ${total_sum}")
+    print(f"Estimated delivery date: {date.today() + timedelta(days=3)}" )
     print("-------------------------------------------------------------------------------------------------------------------") 
+
+def print_title(title):
+    print(f"Title:\t {title[0]}")
+    print(f"Author:\t {title[1]}")
+    print(f"ISBN:\t {title[2]}")
+    print(f"Price:\t {title[3]}")
+    print(f"Subject\t {title[4]}")
+    print("\n")
 
 def main():
 
@@ -123,10 +139,21 @@ def main():
                 case "1":
                     index = 0;
                     subjects = book_store.get_subjects()
+                    allowed = [str(x) for x in range(1,len(subjects) + 1)]
+                    
                     for subject in subjects: 
                         index += 1
                         print(f"{index}. {subject[0]}")
-                    str_subject = subjects[int(get_input("Choice: "))-1]
+
+                    choice = get_input("Choice: ")
+                    while(choice not in allowed):
+                        print("Invalid option! Valids are:")
+                        for el in allowed:
+                            print(f"{el}", end=" ")
+                        choice = get_input("\nPlease, make your choice: ")
+                        
+                    # Convert the choice to a str again
+                    str_subject = subjects[int(choice)-1]
                     
                     ############
 
@@ -136,12 +163,7 @@ def main():
 
                     i = 0 
                     for title in titles:
-                        print(f"Title:\t {title[0]}")
-                        print(f"Author:\t {title[1]}")
-                        print(f"ISBN:\t {title[2]}")
-                        print(f"Price:\t {title[3]}")
-                        print(f"Subject\t {str_subject[0]}")
-                        print("\n")
+                        print_title(title)
                         
                         # List two at a time
                         i += 1
@@ -161,12 +183,13 @@ def main():
                 case "2":
                     go_back = False
 
-                    print_search_menu()
                     while(go_back is not True):
 
                         allowed = ["1", "2", "3"]
+                        print_search_menu()
                         choice = get_input("Type in your option: ")
                         while(choice not in allowed):
+                            print_search_menu()
                             choice = get_input("EPIC FAIL, Type in your option[1,2,3]: ")   
 
                         match(choice):
@@ -178,11 +201,7 @@ def main():
                                 
                                 i = 0
                                 for title in result:
-                                    print(f"Title:\t {title[0]}")
-                                    print(f"Author:\t {title[1]}")
-                                    print(f"ISBN:\t {title[2]}")
-                                    print(f"Price:\t {title[3]}")
-                                    print(f"Subject\t {title[4]}")
+                                    print_title()
 
                                     i += 1
                                     if(i % 3 == 0):
@@ -209,11 +228,7 @@ def main():
                                 
                                 i = 0
                                 for title in result:
-                                    print(f"Title:\t {title[0]}")
-                                    print(f"Author:\t {title[1]}")
-                                    print(f"Price:\t {title[2]}")
-                                    print(f"ISBN:\t {title[3]}")
-                                    print(f"Subject\t {title[4]}")
+                                    print(title)
                                     print("---------------------")
 
                                     i += 1
@@ -251,10 +266,13 @@ def main():
                     print("-------------------------------------------------------------------------------------------------------------------") 
                     
                     # Do we want to checkout and pay?
-                    if(get_input("Do you want to checkout? y/N").lower()) == "y":
+                    if(get_input("Do you want to checkout? (y/N): ").lower()) == "y":
                        #Do the checkout, we pass cart_contents so we dont have to retreive it again 
                        order_id = book_store.save_order(cart_contents, user_id)
                        print_receipt(order_id, cart_contents, book_store.get_member_details(user_id))
+
+                       # Clear cart
+                       book_store.clear_cart(user_id)
 
                     # Else just continue the program
 

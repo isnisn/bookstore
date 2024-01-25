@@ -42,8 +42,8 @@ class BookStore:
     
 
     # Get all titles by current subject
-    def get_titles_by_subject(self, str_subject) -> list:
-        q = "(select title, author, isbn, price from books where subject = %s)"
+    def get_titles_by_subject(self, str_subject):
+        q = "(select title, author, isbn, price, subject from books where subject = %s)"
         self.cursor.execute(q, (str_subject,))
         lst = self.cursor.fetchall()
         return lst
@@ -85,6 +85,9 @@ class BookStore:
         # All went well return data for receipt.
         return orderid
 
+    def clear_cart(self, userid):
+        q = ("DELETE FROM cart WHERE userid = %s")
+        self.cursor.execute(q, (userid,))
 
     # Get the entire cart for one user
     def get_cart(self, userid):
