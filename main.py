@@ -67,6 +67,16 @@ def collect_member_data():
 
     return member_data
 
+def add_to_cart():
+
+    isbn = get_input("Enter ISBN: ")
+    qty = get_input("Enter qty: ")
+    data = (user_id, isbn, int(qty))
+
+    if book_store.add_to_cart(data):
+        print(f"\n{isbn} was successfully added to cart\n")
+    else:
+        print("\nSomething went horrible wrong, please check your input")
 
 def main():
 
@@ -78,6 +88,7 @@ def main():
 
         # User is authenticated
         if user_logged_in:
+            
             print_main_menu()
             choice = get_input()
  
@@ -115,19 +126,27 @@ def main():
                             # Get input choice for the book(s)
                             match(choice):
                                 case "B":
-                                    isbn = get_input("Enter ISBN: ")
-                                    qty = get_input("Enter qty: ")
-                                    data = (user_id, isbn, int(qty))
-                                    if book_store.add_to_cart(data):
-                                        print(f"\n{isbn} was successfully added to cart\n")
-                                    else:
-                                        print("\nSomething went horrible wrong, please check your input")
-                                  
+                                    add_to_cart()
+
                                 case "N":
                                     pass# List two more
                                 case "Q":
                                     break
-                    print("No more books in the list, going to main menu")
+                    # print("No more books in the list, going to main menu")
+                
+                    ## Checkout ##
+                case "3":
+                    # Retrieve contents for current logged in user
+                    cart_contents = book_store.get_cart(user_id)
+                    total_sum = 0 
+                    print("ISBN\t    TITLE\t\t\t\t\t\t\t\t$\tQty\t\tTotal")
+                    print("-------------------------------------------------------------------------------------------------------------------")
+                    for row in cart_contents:
+                        print(f"{row[0]:<12}{row[1]:<68}${row[3]:>5}\t{row[2]:<10}\t${row[3] * row[2]:<10}")
+                        total_sum += (row[3] * row[2])
+                    print("-------------------------------------------------------------------------------------------------------------------")
+                    print(f"Total: ${total_sum}")
+                    print("-------------------------------------------------------------------------------------------------------------------") 
         else:
 
             # User not authenticated
@@ -159,7 +178,7 @@ def main():
                 case "q":
                     wanna_quit = True
 
-        #print_subjects(subjects)
+        
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ class BookStore:
     
     def __init__(self) -> None:
     
-        ### CREATE A file ´config´ in the root folder with 
+        ### Create a file ´config´ in the root folder with 
         ### user:password:host
         ### For example -> banana:bread:localhost
 
@@ -51,8 +51,14 @@ class BookStore:
             # print(err.errno)
             return False
 
+    def get_cart(self, userid):
+        q = "(select b.isbn, b.title, c.qty, b.price from cart c join books b on b.isbn = c.isbn where c.userid = %s)"
 
+        self.cursor.execute(q, (userid,))
+        data = self.cursor.fetchall()
+        return data
 
+    # Creates a member in database
     def create_member(self, member_data):
         q = ("INSERT INTO members(fname, lname, address, city, zip, phone, email, `password`) "
         "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
@@ -61,6 +67,7 @@ class BookStore:
         self.mydb.commit() 
         
 
+    # Returns member login data
     def member_login(self, member_login):
 
         q = "(SELECT password, userid FROM members WHERE email = %s)"
