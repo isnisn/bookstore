@@ -33,7 +33,7 @@ class BookStore:
         return lst
 
     
-    # Get all titles by author
+    # Get all titles by title
     def get_titles_by_title(self, title):
         q = "(select title, author, price, isbn, subject from books where title LIKE CONCAT('%', %s, '%'))"
         self.cursor.execute(q, (title,))

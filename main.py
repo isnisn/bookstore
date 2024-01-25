@@ -163,8 +163,12 @@ def main():
 
                     print_search_menu()
                     while(go_back is not True):
+
+                        allowed = ["1", "2", "3"]
                         choice = get_input("Type in your option: ")
-                        
+                        while(choice not in allowed):
+                            choice = get_input("EPIC FAIL, Type in your option[1,2,3]: ")   
+
                         match(choice):
                             case "1":
                                 author = get_input("Enter the exact author: ")
@@ -183,6 +187,9 @@ def main():
                                     i += 1
                                     if(i % 3 == 0):
                                         choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")
+                                        while(choice not in allowed):
+                                            print(f"{choice} is not a valid option!! Please check brain-eyes relationship" )
+                                            choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")    
 
                                         # Get input choice for the book(s)
                                         match(choice):
@@ -194,6 +201,7 @@ def main():
                                                 break
                                     
                             case "2":
+                                allowed = ["N", "B", "Q"]
                                 title = get_input("Enter part of the title: ")
                                 result = book_store.get_titles_by_title(title)
 
@@ -203,13 +211,17 @@ def main():
                                 for title in result:
                                     print(f"Title:\t {title[0]}")
                                     print(f"Author:\t {title[1]}")
-                                    print(f"ISBN:\t {title[2]}")
-                                    print(f"Price:\t {title[3]}")
+                                    print(f"Price:\t {title[2]}")
+                                    print(f"ISBN:\t {title[3]}")
                                     print(f"Subject\t {title[4]}")
+                                    print("---------------------")
 
                                     i += 1
                                     if(i % 3 == 0):
                                         choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")
+                                        while(choice not in allowed):
+                                            print(f"{choice} is not a valid option!! Please check brain-eyes relationship" )
+                                            choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")    
 
                                         # Get input choice for the book(s)
                                         match(choice):
@@ -242,9 +254,10 @@ def main():
                     if(get_input("Do you want to checkout? y/N").lower()) == "y":
                        #Do the checkout, we pass cart_contents so we dont have to retreive it again 
                        order_id = book_store.save_order(cart_contents, user_id)
+                       print_receipt(order_id, cart_contents, book_store.get_member_details(user_id))
 
-                    print_receipt(order_id, cart_contents, book_store.get_member_details(user_id))
                     # Else just continue the program
+
                 case "4":
                     user_logged_in = False
                     user_id = 0
