@@ -48,8 +48,27 @@ class BookStore:
             return True
     
         except mysql.connector.Error as err:
-            # print(err.errno)
             return False
+
+    # Save the order to the database
+    def save_order(self, cart_data, userid):
+        # First we create the order and save the order_id
+        q = ("INSERT INTO orders(userid, created, shipAddress, shipCity, shipZip)" 
+              + " SELECT 1, CURDATE(), address, city, zip FROM members WHERE userid = %s")
+        self.cursor.execute(q, (userid,))  
+        self.mydb.commit()
+        orderid = self.cursor._last_insert_id
+
+        # Now we insert the individual rows from cart_data 
+        for row in cart_data:
+            q = ("INSERT INTO odetails(ono, isbn, qty, amount) "
+                 + "VALUES(%s, %s, %s, %s)")
+            self.cursor.execute(q, (orderid, row[0], row[2], row[3])) 
+        self.mydb.commit()
+        
+        # All went well return data for receipt.
+        return orderid
+
 
     def get_cart(self, userid):
         q = "(select b.isbn, b.title, c.qty, b.price from cart c join books b on b.isbn = c.isbn where c.userid = %s)"
@@ -57,6 +76,12 @@ class BookStore:
         self.cursor.execute(q, (userid,))
         data = self.cursor.fetchall()
         return data
+
+    def get_member_details(self, userid):
+        q = "(SELECT concat(fname, ' ', lname), address, city, zip FROM members WHERE userid = %s)"
+        self.cursor.execute(q, (userid,))
+        return [x for x in self.cursor.fetchone()]
+
 
     # Creates a member in database
     def create_member(self, member_data):
@@ -76,8 +101,3 @@ class BookStore:
         return self.cursor.fetchone()
 
 
-
-
-    # def __del__(self):
-    #     self.cursor.close()
-    #     self.mydb.close()

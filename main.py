@@ -5,8 +5,8 @@ from book_store import BookStore
 
 # Instantiate new BookStore
 book_store = BookStore()
-user_logged_in = True#False
-user_id = 1 
+user_logged_in = False
+user_id = 0 
 
 # Get the subjects
 subjects = book_store.get_subjects()
@@ -29,7 +29,7 @@ def print_login_menu() -> None:
     print()
     print("1. Member login")
     print("2. New member Registration") 
-    print("q. Member login")
+    print("q. Quit")
 
 
 def print_main_menu() -> None:
@@ -78,6 +78,28 @@ def add_to_cart():
     else:
         print("\nSomething went horrible wrong, please check your input")
 
+def print_receipt(order_id, cart_contents, member_details):
+    total_sum = 0
+
+    print("\n\n")
+    print(f"\t\t\t Invoice for order: {order_id}")
+    print()
+    print("\tShipping address")
+    print(f"\tName: \t {member_details[0]}")
+    print(f"\tAddress: {member_details[1]}")
+    print(f"\t\t{member_details[2]}")
+    print(f"\t\t{member_details[3]}")
+    print("-"*80)
+
+    print("ISBN\t    TITLE\t\t\t\t\t\t\t\t$\tQty\t\tTotal")
+    print("-------------------------------------------------------------------------------------------------------------------")
+    for row in cart_contents:
+        print(f"{row[0]:<12}{row[1]:<68}${row[3]:>5}\t{row[2]:<10}\t${row[3] * row[2]:<10}")
+        total_sum += (row[3] * row[2])
+    print("-------------------------------------------------------------------------------------------------------------------")
+    print(f"Total: ${total_sum}")
+    print("-------------------------------------------------------------------------------------------------------------------") 
+
 def main():
 
     global user_logged_in, user_id
@@ -85,7 +107,6 @@ def main():
 
     while wanna_quit is not True:
  
-
         # User is authenticated
         if user_logged_in:
             
@@ -134,8 +155,9 @@ def main():
                                     break
                     # print("No more books in the list, going to main menu")
                 
-                    ## Checkout ##
+                ## Checkout ##
                 case "3":
+                    order_id = 0
                     # Retrieve contents for current logged in user
                     cart_contents = book_store.get_cart(user_id)
                     total_sum = 0 
@@ -147,6 +169,18 @@ def main():
                     print("-------------------------------------------------------------------------------------------------------------------")
                     print(f"Total: ${total_sum}")
                     print("-------------------------------------------------------------------------------------------------------------------") 
+                    
+                    # Do we want to checkout and pay?
+                    if(get_input("Do you want to checkout? y/N").lower()) == "y":
+                       #Do the checkout, we pass cart_contents so we dont have to retreive it again 
+                       order_id = book_store.save_order(cart_contents, user_id)
+
+                    print_receipt(order_id, cart_contents, book_store.get_member_details(user_id))
+                    # Else just continue the program
+                case "4":
+                    user_logged_in = False
+                    user_id = 0
+                        
         else:
 
             # User not authenticated
@@ -174,7 +208,7 @@ def main():
 
                     # Create the member 
                     book_store.create_member(member_data) 
-                    
+                          
                 case "q":
                     wanna_quit = True
 
