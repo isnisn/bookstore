@@ -25,9 +25,25 @@ class BookStore:
         self.cursor.execute(f"USE {self.database}") 
 
 
+    # Get all titles by author
+    def get_titles_by_author(self, author):
+        q = "(select title, author, price, isbn, subject from books where author = %s)"
+        self.cursor.execute(q, (author,))
+        lst = self.cursor.fetchall()
+        return lst
+
+    
+    # Get all titles by author
+    def get_titles_by_title(self, title):
+        q = "(select title, author, price, isbn, subject from books where title LIKE CONCAT('%', %s, '%'))"
+        self.cursor.execute(q, (title,))
+        lst = self.cursor.fetchall()
+        return lst
+    
+
     # Get all titles by current subject
     def get_titles_by_subject(self, str_subject) -> list:
-        q = "(select title, author, price, isbn, price from books where subject = %s)"
+        q = "(select title, author, isbn, price from books where subject = %s)"
         self.cursor.execute(q, (str_subject,))
         lst = self.cursor.fetchall()
         return lst
@@ -70,6 +86,7 @@ class BookStore:
         return orderid
 
 
+    # Get the entire cart for one user
     def get_cart(self, userid):
         q = "(select b.isbn, b.title, c.qty, b.price from cart c join books b on b.isbn = c.isbn where c.userid = %s)"
 
@@ -77,6 +94,7 @@ class BookStore:
         data = self.cursor.fetchall()
         return data
 
+    # Get all memberdetails for a specific user(without password)
     def get_member_details(self, userid):
         q = "(SELECT concat(fname, ' ', lname), address, city, zip FROM members WHERE userid = %s)"
         self.cursor.execute(q, (userid,))

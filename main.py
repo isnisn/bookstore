@@ -43,6 +43,11 @@ def print_main_menu() -> None:
     print("3. Check out")
     print("4. Logout")
 
+def print_search_menu():
+    print("1. Author search") 
+    print("2. Title search") 
+    print("3. Go back to member menu")
+ 
 def get_input(text = "Enter your choice: ") -> str:
     return str(input(text))
 
@@ -133,9 +138,8 @@ def main():
                     for title in titles:
                         print(f"Title:\t {title[0]}")
                         print(f"Author:\t {title[1]}")
-                        print(f"Price:\t {title[2]}")
-                        print(f"ISBN:\t {title[3]}")
-                        print(f"Price:\t {title[4]}")
+                        print(f"ISBN:\t {title[2]}")
+                        print(f"Price:\t {title[3]}")
                         print(f"Subject\t {str_subject[0]}")
                         print("\n")
                         
@@ -148,13 +152,77 @@ def main():
                             match(choice):
                                 case "B":
                                     add_to_cart()
-
                                 case "N":
                                     pass# List two more
                                 case "Q":
                                     break
-                    # print("No more books in the list, going to main menu")
                 
+                ## Search by author or title ##
+                case "2":
+                    go_back = False
+
+                    print_search_menu()
+                    while(go_back is not True):
+                        choice = get_input("Type in your option: ")
+                        
+                        match(choice):
+                            case "1":
+                                author = get_input("Enter the exact author: ")
+                                result = book_store.get_titles_by_author(author)
+                                
+                                print(f"Found {len(result)} books")
+                                
+                                i = 0
+                                for title in result:
+                                    print(f"Title:\t {title[0]}")
+                                    print(f"Author:\t {title[1]}")
+                                    print(f"ISBN:\t {title[2]}")
+                                    print(f"Price:\t {title[3]}")
+                                    print(f"Subject\t {title[4]}")
+
+                                    i += 1
+                                    if(i % 3 == 0):
+                                        choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")
+
+                                        # Get input choice for the book(s)
+                                        match(choice):
+                                            case "B":
+                                                add_to_cart()
+                                            case "N":
+                                                pass# List two more
+                                            case "Q":
+                                                break
+                                    
+                            case "2":
+                                title = get_input("Enter part of the title: ")
+                                result = book_store.get_titles_by_title(title)
+
+                                print(f"Found {len(result)} books")
+                                
+                                i = 0
+                                for title in result:
+                                    print(f"Title:\t {title[0]}")
+                                    print(f"Author:\t {title[1]}")
+                                    print(f"ISBN:\t {title[2]}")
+                                    print(f"Price:\t {title[3]}")
+                                    print(f"Subject\t {title[4]}")
+
+                                    i += 1
+                                    if(i % 3 == 0):
+                                        choice = get_input("Enter B to add to cart or\nN to browse 3 or\nQ for exit to menu: ")
+
+                                        # Get input choice for the book(s)
+                                        match(choice):
+                                            case "B":
+                                                add_to_cart()
+                                            case "N":
+                                                pass# List two more
+                                            case "Q":
+                                                break
+
+                            case "3":
+                                #Go back
+                                go_back = True
                 ## Checkout ##
                 case "3":
                     order_id = 0
