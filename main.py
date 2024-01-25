@@ -5,7 +5,8 @@ from book_store import BookStore
 
 # Instantiate new BookStore
 book_store = BookStore()
-user_logged_in = True
+user_logged_in = True#False
+user_id = 1 
 
 # Get the subjects
 subjects = book_store.get_subjects()
@@ -69,7 +70,7 @@ def collect_member_data():
 
 def main():
 
-    global user_logged_in
+    global user_logged_in, user_id
     wanna_quit = False
 
     while wanna_quit is not True:
@@ -103,19 +104,30 @@ def main():
                         print(f"Price:\t {title[2]}")
                         print(f"ISBN:\t {title[3]}")
                         print(f"Price:\t {title[4]}")
+                        print(f"Subject\t {str_subject[0]}")
                         print("\n")
                         
                         # List two at a time
                         i += 1
                         if(i % 2 == 0):
-                            choice = get_input("Enter ISBN to add to cart or\nN to browse 2 more or\nQ for exit to menu: ")
+                            choice = get_input("Enter B to add to cart or\nN to browse 2 more or\nQ for exit to menu: ")
+
+                            # Get input choice for the book(s)
                             match(choice):
-                                case "ISBN":
-                                    pass# Add to cart
+                                case "B":
+                                    isbn = get_input("Enter ISBN: ")
+                                    qty = get_input("Enter qty: ")
+                                    data = (user_id, isbn, int(qty))
+                                    if book_store.add_to_cart(data):
+                                        print(f"\n{isbn} was successfully added to cart\n")
+                                    else:
+                                        print("\nSomething went horrible wrong, please check your input")
+                                  
                                 case "N":
                                     pass# List two more
                                 case "Q":
                                     break
+                    print("No more books in the list, going to main menu")
         else:
 
             # User not authenticated
@@ -125,15 +137,17 @@ def main():
                 case "1":
                     # Login user 
                    member_login = get_member_login()
-                   print(member_login)
-                   login_status = book_store.member_login(member_login)
+                   
+                   user_details = book_store.member_login(member_login)
 
                    # Login the user if the authentication was successful
-                   if login_status == False:
-                       print("Not logged in")
-                   elif login_status == True:
+                   if user_details[0] == member_login[1]:
                        print("Logged in!")
                        user_logged_in = True
+                       user_id = user_details[1]
+                   else:
+                       print("Failed to login")
+                    
 
                 case "2":
                     # Collect member data

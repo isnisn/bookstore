@@ -40,10 +40,16 @@ class BookStore:
 
     # Add item to cart
     def add_to_cart(self, data):
-        q = "(insert into cart(userid, isbn, qty) values(%s, %s, %s))"
-        self.cursor.execute(q, data)
-        self.mydb.commit()
+        try:
+            q = ("insert into cart(userid, isbn, qty) values(%s, %s, %s)")
+            self.cursor.execute(q, data)
+            self.mydb.commit()
+
+            return True
     
+        except mysql.connector.Error as err:
+            # print(err.errno)
+            return False
 
 
 
@@ -55,18 +61,12 @@ class BookStore:
         self.mydb.commit() 
         
 
-    def member_login(self, member_login) -> bool:
+    def member_login(self, member_login):
 
-        q = "(SELECT password FROM members WHERE email = %s)"
+        q = "(SELECT password, userid FROM members WHERE email = %s)"
         self.cursor.execute(q, (member_login[0],))
 
-        _data = self.cursor.fetchone()
-
-        if _data is not None:
-            if _data[0] == member_login[1]:
-                return True
-
-        return False
+        return self.cursor.fetchone()
 
 
 
